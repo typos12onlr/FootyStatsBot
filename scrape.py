@@ -128,7 +128,7 @@ class Scraper:
         seasonData.to_csv(fname, index=False)
         return seasonData
         
-    def fetch_season_data(self, player_modes:list, player_identifier:str, team_modes:list, team_identifier:str, season:str="2024-2025"):
+    def fetch_season_data(self, player_modes:list, player_identifier:str, team_modes:list, team_identifier:str, season:str):
 
         """
         Fetch and process complete season data for both players and teams.
@@ -144,7 +144,7 @@ class Scraper:
             DataFrame: Processed and cleaned season data
         """
 
-        playerData = self._fetch_player_data(player_modes, season="2023-2024", identifier=player_identifier, use_class=True)
+        playerData = self._fetch_player_data(player_modes, season=season, identifier=player_identifier, use_class=True)
 
         playerData= self._clean_master_df(playerData)
         playerData= self._renameCols(playerData)
@@ -293,6 +293,7 @@ class Scraper:
             url = f"https://fbref.com/en/comps/Big5/{season}/{mode}/squads/{season}-Big-5-European-Leagues-Stats"
         
         try:
+            print("Trying: ", url)
             driver.get(url)
 
             # Wait for the table to load
