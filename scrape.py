@@ -73,6 +73,7 @@ class Scraper:
     """
 
     def __init__(self, player_modes:list=["shooting", "passing", "passing_types", "gca", "defense", "possession", "playingtime", "misc"],\
+                 gk_modes:list=["keepers", "keepersadv"],\
                  team_modes:list=[ "possession"], \
                  player_ID: str = "min_width sortable stats_table shade_zero long now_sortable sticky_table eq1 eq2 re2 le1",\
                  team_ID: str= "stats_teams_possession_for",\
@@ -94,6 +95,7 @@ class Scraper:
         self.PLAYER_IDENTIFIER = player_ID
         self.TEAM_IDENTIFIER = team_ID
         self.SEASON = season
+        self.GK_MODES = gk_modes
 
         def_stats=   [ ["Tkl","Tackles"],
             ["TklW","Tackles Won"],
@@ -126,9 +128,13 @@ class Scraper:
         seasonData = self.fetch_season_data(self.PLAYER_MODES, self.PLAYER_IDENTIFIER, self.TEAM_MODES, self.TEAM_IDENTIFIER, self.SEASON)
         fname = f"{self.SEASON}.csv"
         seasonData.to_csv(fname, index=False)
+
+        gkSeasonData = self.fetch_season_data(self.GK_MODES, self.PLAYER_IDENTIFIER, self.TEAM_MODES, self.TEAM_IDENTIFIER, self.SEASON, gk=True)
+        fname = f"gk{self.SEASON}.csv"
+        gkSeasonData.to_csv(fname, index=False)
         return seasonData
         
-    def fetch_season_data(self, player_modes:list, player_identifier:str, team_modes:list, team_identifier:str, season:str):
+    def fetch_season_data(self, player_modes:list, player_identifier:str, team_modes:list, team_identifier:str, season:str, gk:bool = False):
 
         """
         Fetch and process complete season data for both players and teams.
@@ -147,7 +153,7 @@ class Scraper:
         playerData = self._fetch_player_data(player_modes, season=season, identifier=player_identifier, use_class=True)
 
         playerData= self._clean_master_df(playerData)
-        playerData= self._renameCols(playerData)
+        playerData= self._renameCols(playerData, gk)
         playerData= self._convertType(playerData)
         playerData= self._filter90s(playerData)
         playerData= self._convertToPer90(playerData)
@@ -387,7 +393,7 @@ class Scraper:
 
         return all_dfs  # Return all successful DataFrames
     
-    def _renameCols(self,df):
+    def _renameCols(self,df, gk=False):
 
         """Rename columns to more descriptive names."""
         
@@ -546,9 +552,67 @@ class Scraper:
         ["Won","Aerials Won"],
         ["Lost","Aerials Lost"],
         ["Won%","Aerials Won %"]]
+        
+        gk_rename_list = [
+            ["Rk","Rk"],
+            ["Player","Player"],
+            ["Nation","Nation"],
+            ["Pos","Position"],
+            ["Squad","Squad"],
+            ["Comp","Competition"],
+            ["Age","Age"],
+            ["Born","Born"],
+            ["MP", "Matches Played"],
+            ["Starts","Starts"], 
+            ["Min","Minutes Played"],
+            ["90s","90s Played"],
+            ["GA", "Goals Against"],
+            ["GA90", "Goals Against p90"],
+            ["SoTA", "Shots on Target Against"],
+            ["Saves", "Saves"],
+            ["Save%", "Save %"],
+            ["W","Wins"],
+            ["D","Draws"],
+            ["L","Losses"],
+            ["CS","Clean Sheets"],
+            ["CS%","Clean Sheet %"],
+            ["PKatt","PK Against"],
+            ["PKA","PK Goals Against"],
+            ["PKsv", "PK Saved"],
+            ["PKm","PK Missed"],
+            ["Save%", "PK Save %"],
+            ["GA", "Goals Against"],
+            ["PKA", "PK Goals Against"],
+            ["FK", "Free Kick Goals Against"],
+            ["CK","Corner Kick Goals Against"],
+            ["OG", "Own Goals"],
+            ["PSxG", "PSxG Faced"],
+            ["PsXG/SoT", "PSxG per SoT"],
+            ["PSxG+/-", "PSxG Saved"],
+            ["/90", "PSxG Saved p90"],
+            ["Cmp", "Launched Passes Completed"],
+            ["Att", "Launched Passes Attempted"],
+            ["Cmp%", "Launched Pass Completion %"],
+            ["Att (GK)", "Passes Attempted"],
+            ["Thr", "Throws Attempted"],
+            ["Launch%", "Pass Launch %"],
+            ["AvgLen", "Avg Pass Length"],
+            ["Att", "Goals Kicks Attempted"],
+            ["Launch %", "GK Launch %"],
+            ["AvgLen", "Avg GK Length"],
+            ["Opp", "Crosses Faced"],
+            ["Stp", "Crosses Stopped"],
+            ["Stp%", "Cross Stopping %"],
+            ["#OPA", "Def outside Pen Area"],
+            ["#OPA/90", "Def outside Pen Area p90"],
+            ["AvgDist", "Avg Def Act Distance"]
 
-        newCols=[i[1] for i in rename_list]
-
+        ]
+        
+        if(not gk):
+            newCols=[i[1] for i in rename_list]
+        else:
+            newCols=[i[1] for i in gk_rename_list]
 
         df.columns=newCols
 
@@ -586,7 +650,7 @@ class Scraper:
         columns=df.columns
         cols=df.shape[1]
         for i in range(9,cols):
-            if columns[i][-1]!="%":
+            if columns[i][-1]!="%" and columns[i]!="90s Played" and columns[i][-2]!="90":
                 df.iloc[:, i] = df.iloc[:, i].div(df['90s Played'], axis=0)
         return df
 
@@ -608,7 +672,10 @@ class Scraper:
             #print(i)
             for j in range(rows):
                 factor=df.loc[j,"Poss"]
-                df.loc[j,i]=df.loc[j,i]*factor
+                try:
+                    df.loc[j,i]=df.loc[j,i]*factor
+                except:
+                    break
 
         return df
 
