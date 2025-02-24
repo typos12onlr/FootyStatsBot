@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import os
 
 from unidecode import unidecode
 
@@ -116,7 +117,7 @@ class Scraper:
 
         self.def_stats=[i[1] for i in def_stats]
 
-    def save_to_csv(self):
+    def save_to_csv(self, DATA_DIR):
 
         """
         Update seasonal data into csv file.
@@ -127,12 +128,12 @@ class Scraper:
 
         seasonData = self.fetch_season_data(self.PLAYER_MODES, self.PLAYER_IDENTIFIER, self.TEAM_MODES, self.TEAM_IDENTIFIER, self.SEASON)
         fname = f"{self.SEASON}.csv"
-        seasonData.to_csv(fname, index=False)
+        seasonData.to_csv(os.path.join(DATA_DIR,fname), index=False)
 
         gkSeasonData = self.fetch_season_data(self.GK_MODES, self.PLAYER_IDENTIFIER, self.TEAM_MODES, self.TEAM_IDENTIFIER, self.SEASON, gk=True)
         fname = f"gk{self.SEASON}.csv"
-        gkSeasonData.to_csv(fname, index=False)
-        return seasonData
+        gkSeasonData.to_csv(os.path.join(DATA_DIR,fname), index=False)
+        return seasonData, gkSeasonData
         
     def fetch_season_data(self, player_modes:list, player_identifier:str, team_modes:list, team_identifier:str, season:str, gk:bool = False):
 
@@ -408,19 +409,19 @@ class Scraper:
         ["90s","90s Played"],
         ["Gls","Goals"],
         ["Sh","Shots Total"],
-        ["SoT","Shots on Target"],
-        ["SoT%","Shots on Target %"],
-        ["Sh/90","Shots per 90"],
-        ["SoT/90","Shots on Target per 90"],
-        ["G/Sh","Goals per Shot"],
-        ["G/SoT","Goals per Shot on Target"],
+        ["SoT","Shots On Target"],
+        ["SoT%","Shots On Target %"],
+        ["Sh/90","Shots Per 90"],
+        ["SoT/90","Shots On Target Per 90"],
+        ["G/Sh","Goals Per Shot"],
+        ["G/SoT","Goals Per Shot On Target"],
         ["Dist","Avg Shot Distance"],
         ["FK","Free Kicks"],
         ["PK","Penatly Kicks"],
         ["PKatt","Penalty Kicks Attempted"],
         ["xG","Expected Goals"],
         ["npxG","Non Penalty Expected Goals"],
-        ["npxG/Sh","Non Penalty Expected Goals per shot"],
+        ["npxG/Sh","Non Penalty Expected Goals Per shot"],
         ["G-xG","Goals - Expected Goals"],
         ["np:G-xG","Non Penalty Goals - Expected Goals"],
         ["Cmp","Total Passes Completed"],
@@ -442,14 +443,14 @@ class Scraper:
         ["xA","Expected Assists"],
         ["A-xAG","Assists - Expected Assisted Goals"],
         ["KP","Key Passes"],
-        ["1/3","Passes into Final Third"],
-        ["PPA","Passes into Penalty Area"],
-        ["CrsPA","Crosses into Penalty Area"],
+        ["1/3","Passes Into Final Third"],
+        ["PPA","Passes Into Penalty Area"],
+        ["CrsPA","Crosses Into Penalty Area"],
         ["PrgP","Progressive Passes"],
         ["Att","Total Passes Attempted"],
         ["Live","Live-Ball Passes"],
         ["Dead","Dead-Ball Passes"],
-        ["FK","Passes from Free Kicks"],
+        ["FK","Passes From Free Kicks"],
         ["TB","Through Balls"],
         ["Sw","Switches"],
         ["Crs","Crosses"],
@@ -462,7 +463,7 @@ class Scraper:
         ["Off","Total Passes Offside"],
         ["Blocks","Total Passes Blocked"],
         ["SCA","Shot Creating Actions"],
-        ["SCA90","Shot Creating Actions per 90"],
+        ["SCA90","Shot Creating Actions Per 90"],
         ["PassLive","SCA Pass Live"],
         ["PassDead","SCA Pass Dead"],
         ["TO","SCA Take Ons"],
@@ -470,7 +471,7 @@ class Scraper:
         ["Fld","SCA Fouls Drawn"],
         ["Def","SCA Defensive Actions"],
         ["GCA","Goal Creating Actions"],
-        ["GCA90","Goal Creating Actions per 90"],
+        ["GCA90","Goal Creating Actions Per 90"],
         ["PassLive","GCA Pass Live"],
         ["PassDead","GCA Pass Dead"],
         ["TO","GCA Take Ons"],
@@ -479,11 +480,11 @@ class Scraper:
         ["Def","GCA Defensive Actions"],
         ["Tkl","Tackles"],
         ["TklW","Tackles Won"],
-        ["Def 3rd","Tackles in Defensive Third"],
-        ["Mid 3rd","Tackles in Middle Third"],
-        ["Att 3rd","Tackles in Attacking Third"],
-        ["Tkl","Number of Dribblers Tackled"],
-        ["Att","Number of Dribbles Challenged"],
+        ["Def 3rd","Tackles In Defensive Third"],
+        ["Mid 3rd","Tackles In Middle Third"],
+        ["Att 3rd","Tackles In Attacking Third"],
+        ["Tkl","Number Of Dribblers Tackled"],
+        ["Att","Number Of Dribbles Challenged"],
         ["Tkl%","Dribblers Tackled %"],
         ["Lost","Dribbled Past"],
         ["Blocks","Total Blocks"],
@@ -494,23 +495,23 @@ class Scraper:
         ["Clr","Clearances"],
         ["Err","Errors"],
         ["Touches","Touches"],
-        ["Def Pen","Touches in Defensive Penalty"],
-        ["Def 3rd","Touches in Defensive Third"],
-        ["Mid 3rd","Touches in Middle Third"],
-        ["Att 3rd","Touches in Attacking Third"],
-        ["Att Pen","Touches in Attacking Penalty Area"],
+        ["Def Pen","Touches In Defensive Penalty"],
+        ["Def 3rd","Touches In Defensive Third"],
+        ["Mid 3rd","Touches In Middle Third"],
+        ["Att 3rd","Touches In Attacking Third"],
+        ["Att Pen","Touches In Attacking Penalty Area"],
         ["Live","Live Ball Touches"],
         ["Att","Take Ons Attempted"],
         ["Succ","Successful Take Ons"],
-        ["Succ%","Successful Take on %"],
+        ["Succ%","Successful Take On %"],
         ["Tkld","Times Tackled"],
         ["Tkld%","Tackled %"],
-        ["Carries","Number of Carries"],
+        ["Carries","Number Of Carries"],
         ["TotDist","Total Carrying Distance"],
         ["PrgDist","Progressive Carrying Distance"],
         ["PrgC","Progressive Carries"],
-        ["1/3","Carries into Final Third"],
-        ["CPA","Carries into Penalty Area"],
+        ["1/3","Carries Into Final Third"],
+        ["CPA","Carries Into Penalty Area"],
         ["Mis","Miscontrols"],
         ["Dis","Dispossessed"],
         ["Rec","Passes Received"],
@@ -520,16 +521,16 @@ class Scraper:
         ["Mn/MP","Minutes per Match"],
         ["Min%","Total Minutes Played %"],
         ["Starts","Starts"],
-        ["Mn/Start","Minutes per Start"],
+        ["Mn/Start","Minutes Per Start"],
         ["Compl","Complete Matches Played"],
         ["Subs","Subbed On"],
-        ["Mn/Sub","Minutes per Sub"],
+        ["Mn/Sub","Minutes Per Sub"],
         ["unSub","Subbed Off"],
         ["PPM","PPM"],
         ["onG","onG"],
         ["onGA","onGA"],
         ["+/-","Goals +/-"],
-        ["+/-90","Goals +/- per 90"],
+        ["+/-90","Goals +/- Per 90"],
         ["On-Off","On-Off"],
         ["onxG","onxG"],
         ["onxGA","onxGA"],
@@ -568,7 +569,7 @@ class Scraper:
             ["90s","90s Played"],
             ["GA", "Goals Against"],
             ["GA90", "Goals Against p90"],
-            ["SoTA", "Shots on Target Against"],
+            ["SoTA", "Shots On Target Against"],
             ["Saves", "Saves"],
             ["Save%", "Save %"],
             ["W","Wins"],
@@ -587,9 +588,9 @@ class Scraper:
             ["CK","Corner Kick Goals Against"],
             ["OG", "Own Goals"],
             ["PSxG", "PSxG Faced"],
-            ["PsXG/SoT", "PSxG per SoT"],
+            ["PsXG/SoT", "PSxG Per SoT"],
             ["PSxG+/-", "PSxG Saved"],
-            ["/90", "PSxG Saved p90"],
+            ["/90", "PSxG Saved Per 90"],
             ["Cmp", "Launched Passes Completed"],
             ["Att", "Launched Passes Attempted"],
             ["Cmp%", "Launched Pass Completion %"],
@@ -604,7 +605,7 @@ class Scraper:
             ["Stp", "Crosses Stopped"],
             ["Stp%", "Cross Stopping %"],
             ["#OPA", "Def outside Pen Area"],
-            ["#OPA/90", "Def outside Pen Area p90"],
+            ["#OPA/90", "Def Outside Pen Area p90"],
             ["AvgDist", "Avg Def Act Distance"]
 
         ]
@@ -650,7 +651,7 @@ class Scraper:
         columns=df.columns
         cols=df.shape[1]
         for i in range(9,cols):
-            if columns[i][-1]!="%" and columns[i]!="90s Played" and columns[i][-2]!="90":
+            if (columns[i][-1]!="%") and (columns[i]!="90s Played") and (columns[i][-2:]!="90") and ("Avg" not in columns[i]):
                 df.iloc[:, i] = df.iloc[:, i].div(df['90s Played'], axis=0)
         return df
 
