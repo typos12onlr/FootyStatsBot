@@ -15,7 +15,7 @@ import os
 from unidecode import unidecode
 
 # Automatically download and use the correct ChromeDriver version
-service = Service(ChromeDriverManager().install())
+# service = Service(ChromeDriverManager().install())
 
 
 
@@ -90,7 +90,7 @@ class Scraper:
             team_ID: HTML attribute identifier for team tables
             season: Season to scrape data for
         """
-
+        self.service  = Service(ChromeDriverManager().install()) # Automatically download and use the correct ChromeDriver version
         self.PLAYER_MODES = player_modes
         self.TEAM_MODES = team_modes
         self.PLAYER_IDENTIFIER = player_ID
