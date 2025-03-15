@@ -4,6 +4,10 @@ from discord.ext import commands
 
 from utils.dataHandler import DataHandler
 from utils.constants import RADAR_TYPES, radarTypeToCols, radarToPos
+from utils.plot import get_player_radar
+
+
+import traceback
 
 class PlotSelect(discord.ui.Select):
     """ Dropdown menu for player selection in the Plot Menu """
@@ -86,17 +90,24 @@ class PlotSelect(discord.ui.Select):
         print(self.menu.playersData[1]["data"])
         try:
             await interaction.response.defer()  # Prevents timeout
-            await interaction.edit_original_response(
-                content=(
-                    f"**Selection Complete!**\n"
-                    f"Season: **{season}**\n"
-                    f"Player 1: **{player1}**\n"
-                    f"Player 2: **{player2}**"
-                ),
-                view=None  # ✅ Removes dropdown UI
-            )
+            # await interaction.edit_original_response(
+            #     content=(
+            #         f"**Selection Complete!**\n"
+            #         f"Season: **{season}**\n"
+            #         f"Player 1: **{player1}**\n"
+            #         f"Player 2: **{player2}**"
+            #     ),
+            #     view=None  # ✅ Removes dropdown UI
+            # )
+
+            await interaction.edit_original_response(content="Generating radar plot...", view=None)
+
+            # Call the radar function
+            await get_player_radar(interaction, self.menu.playersData, self.menu.cols)
+
         except Exception as e:
             print(f"Error occurred: {e}")
+            traceback.print_exc()
 
 
 class PlotMenu(discord.ui.View):

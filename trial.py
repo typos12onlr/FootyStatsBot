@@ -1,4 +1,4 @@
-from scrape import Scraper
+from utils.scrape import Scraper
 
 # List of all modes
 PLAYER_MODES = ["shooting", "passing", "passing_types", "gca", "defense", "possession", "playingtime", "misc"]
