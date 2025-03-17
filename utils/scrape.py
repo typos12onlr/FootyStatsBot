@@ -398,7 +398,7 @@ class Scraper:
 
         """Rename columns to more descriptive names."""
         
-        rename_list=[["Rk","Rk"],
+        rename_list= [["Rk","Rk"],
         ["Player","Player"],
         ["Nation","Nation"],
         ["Pos","Position"],
@@ -447,7 +447,7 @@ class Scraper:
         ["PPA","Passes Into Penalty Area"],
         ["CrsPA","Crosses Into Penalty Area"],
         ["PrgP","Progressive Passes"],
-        ["Att","Total Passes Attempted"],
+        ["Att","PassTypes Total Passes Attempted"],
         ["Live","Live-Ball Passes"],
         ["Dead","Dead-Ball Passes"],
         ["FK","Passes From Free Kicks"],
@@ -459,7 +459,7 @@ class Scraper:
         ["In","Inswinging Corner Kicks"],
         ["Out","Outswinging Corner Kicks"],
         ["Str","Straight Corner Kicks"],
-        ["Cmp","Total Passes Completed"],
+        ["Cmp","PassTypes Total Passes Completed"],
         ["Off","Total Passes Offside"],
         ["Blocks","Total Passes Blocked"],
         ["SCA","Shot Creating Actions"],
@@ -536,16 +536,16 @@ class Scraper:
         ["onxGA","onxGA"],
         ["xG+/-","xG+/-"],
         ["xG+/-90","xG+/-90"],
-        ["On-Off","On-Off"],
+        ["On-Off","On-Off xG"],
         ["CrdY","Yellow Cards"],
         ["CrdR","Red Cards"],
         ["2CrdY","Second Yellows"],
         ["Fls","Fouls Committed"],
         ["Fld","Fouls Drawn"],
         ["Off","Offside"],
-        ["Crs","Crs"],
-        ["Int","Int"],
-        ["TklW","Tackles Won"],
+        ["Crs","Misc Crs"],
+        ["Int","Misc Interceptions"],
+        ["TklW","Misc Tackles Won"],
         ["PKwon","Penalty Kicks Won"],
         ["PKcon","Penalty Kicks Converted"],
         ["OG","Own Goals"],
@@ -604,7 +604,7 @@ class Scraper:
             ["Opp", "Crosses Faced"],
             ["Stp", "Crosses Stopped"],
             ["Stp%", "Cross Stopping %"],
-            ["#OPA", "Def outside Pen Area"],
+            ["#OPA", "Def Outside Pen Area"],
             ["#OPA/90", "Def Outside Pen Area p90"],
             ["AvgDist", "Avg Def Act Distance"]
 
@@ -651,7 +651,7 @@ class Scraper:
         columns=df.columns
         cols=df.shape[1]
         for i in range(9,cols):
-            if (columns[i][-1]!="%") and (columns[i]!="90s Played") and (columns[i][-2:]!="90") and ("Avg" not in columns[i]):
+            if (columns[i][-1]!="%") and (columns[i]!="90s Played") and (columns[i][-2:]!="90") and ("Avg" not in columns[i]) and ("Per" not in columns[i]):
                 df.iloc[:, i] = df.iloc[:, i].div(df['90s Played'], axis=0)
         return df
 

@@ -69,7 +69,7 @@ DEFENDER_COLS=[
     "Carries Into Final Third",
     "Expected Assists",
     "Successful Take Ons",
-    "Successful Take on %",
+    "Successful Take On %",
     "Tackles Won",
     "Dribblers Tackled %",
     "Interceptions",
@@ -81,7 +81,7 @@ DEFENDER_COLS=[
 ]
 
 GOALKEEPER_COLS=[
-    "Shots In Target Against",
+    "Shots On Target Against",
     "PSxG Per SoT",
     "Save %",
     "PSxG Saved",
@@ -112,7 +112,11 @@ NEGATIVE_COLS = [
     "PK Goals Against",
     "Free Kick Goals Against",
     "Corner Kick Goals Against",
-    "PSxG Faced"
+    "PSxG Per SoT",
+    "PSxG Faced",
+    "GK Launch %",
+    "Avg Pass Length",
+    "Pass Launch %",
 ]
 
 radarTypeToCols = {"Forwards": FORWARD_COLS,

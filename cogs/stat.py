@@ -159,13 +159,15 @@ class PlotMenu(discord.ui.View):
             self.cols = radarTypeToCols[radarType]
 
         posn = radarToPos[radarType]
+        print(type(posn))
         for playerNum in range(1, self.n_players + 1):
             self.playersData[playerNum]["radarType"] = radarType
 
         print(f"Fetching data for season: {self.playersData[1]['season']} with position: {posn}")
         try:
-            if posn == "GK":
+            if radarType == "Goalkeepers":
                 self.df = self.datahandler.get_data(season=self.playersData[1]["season"], gk=True)
+                print("GK Data", self.df.shape)
             else:
                 self.df = self.datahandler.get_data(season=self.playersData[1]["season"])
 
@@ -182,6 +184,7 @@ class PlotMenu(discord.ui.View):
             self.df = self.datahandler.compute_percentiles(self.df, self.cols)
         except Exception as e:
             print(f"Error occurred: {e}")
+            print(self.df.columns[:20])
         
         leagues = self.df["Competition"].unique()
         print(f"Leagues available: {leagues}")
