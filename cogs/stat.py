@@ -5,18 +5,19 @@ from discord.ext import commands
 from utils.dataHandler import DataHandler
 from utils.constants import RADAR_TYPES, radarTypeToCols, radarToPos
 from utils.plot import get_player_radar
-
+from utils.scout import get_similar_players
 
 import traceback
 
-class PlotSelect(discord.ui.Select):
+class PlayerSelect(discord.ui.Select):
     """ Dropdown menu for player selection in the Plot Menu """
 
-    def __init__(self, menu: "PlotMenu", options, handler_index):
+    def __init__(self, menu: "PlayerMenu", options, handler_index, mode = "plot"):
         super().__init__(placeholder="Choose an option", options=options)
         self.menu = menu
         self.handler_index = handler_index
-
+        self.mode = mode
+        print(f"Selection Mode: {self.mode}")
     async def callback(self, interaction: discord.Interaction):
         """ Handles dropdown selection and progresses the selection process """
 
@@ -47,7 +48,7 @@ class PlotSelect(discord.ui.Select):
                     leagues = self.menu.df["Competition"].unique()
                     league_options = [discord.SelectOption(label=l, value=l) for l in leagues]
 
-                    new_select = PlotSelect(self.menu, league_options, next_handler_index)
+                    new_select = PlayerSelect(self.menu, league_options, next_handler_index)
                     self.menu.clear_items()
                     self.menu.add_item(new_select)
                     await interaction.response.edit_message(view=self.menu)
@@ -58,7 +59,7 @@ class PlotSelect(discord.ui.Select):
                     return
 
                 if isinstance(response, list):  # Update dropdown with new options
-                    new_select = PlotSelect(self.menu, response, handler_index + 1)
+                    new_select = PlayerSelect(self.menu, response, handler_index + 1, mode = self.mode)
                     self.menu.clear_items()
                     self.menu.add_item(new_select)
                     await interaction.response.edit_message(view=self.menu)
@@ -100,20 +101,22 @@ class PlotSelect(discord.ui.Select):
             #     view=None  # ✅ Removes dropdown UI
             # )
 
-            await interaction.edit_original_response(content="Generating radar plot...", view=None)
+            await interaction.edit_original_response(content="Working...", view=None)
 
             # Call the radar function
-            await get_player_radar(interaction, self.menu.playersData, self.menu.cols)
+            print(f"Calling {self.mode} function")
+            func = self.menu.modes[self.mode]
+            await func(interaction, self.menu)
 
         except Exception as e:
             print(f"Error occurred: {e}")
             traceback.print_exc()
 
 
-class PlotMenu(discord.ui.View):
+class PlayerMenu(discord.ui.View):
     """ View managing dropdown selections """
 
-    def __init__(self, bot, datahandler, n_players, interaction,cols=None):
+    def __init__(self, bot, datahandler, n_players, interaction,cols=None, mode="plot"):
         super().__init__()
         self.bot = bot
         self.datahandler = datahandler
@@ -121,7 +124,12 @@ class PlotMenu(discord.ui.View):
         self.interaction = interaction
         self.df = None
         self.cols = cols
-
+        self.mode = mode
+        self.modes = {
+            "plot": get_player_radar,
+            "scout": get_similar_players
+        }
+        print(f"Mode: {self.mode}")
         # Player data structure
         self.playersData = {
             1: {"season": None, "radarType": None, "league": None, "team": None, "name": None, "data": None},
@@ -139,7 +147,8 @@ class PlotMenu(discord.ui.View):
         )
 
         # Start with season selection
-        self.add_item(PlotSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS], handler_index=0))
+        print(f"creating {self.mode} selection")
+        self.add_item(PlayerSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS], handler_index=0, mode=self.mode))
 
     def _season_handler(self, season):
         if season not in self.datahandler.SEASONS:
@@ -159,7 +168,6 @@ class PlotMenu(discord.ui.View):
             self.cols = radarTypeToCols[radarType]
 
         posn = radarToPos[radarType]
-        print(type(posn))
         for playerNum in range(1, self.n_players + 1):
             self.playersData[playerNum]["radarType"] = radarType
 
@@ -247,8 +255,18 @@ class Stat(commands.Cog):
             await interaction.response.send_message("Only 1 or 2 players are supported.", ephemeral=False)
             return
 
-        view = PlotMenu(self.bot, DataHandler, n_players, interaction)
+        view = PlayerMenu(self.bot, DataHandler, n_players, interaction, mode = "plot")
         await interaction.response.send_message("Select an option:", view=view, ephemeral=False)
+
+    ### ADD Player Scout command
+        ### use PlayerMenu itself to input 1 player
+        ### add a handler for the player scout
+        ### inside utils, create a scout function, takes in df, player name, and returns top N similar players. (5,10)
+    @app_commands.command(name="scout", description="find statistically similar players")
+    async def scout(self, interaction:discord.Interaction, n_similar: int):
+        '''Slash command to start player scout'''
+        view = PlayerMenu(self.bot, DataHandler, n_players=1, interaction= interaction, mode = "scout")
+        await interaction.response.send_message("Select an option:", view= view, ephemeral= False)
 
 async def setup(bot):
     await bot.add_cog(Stat(bot))

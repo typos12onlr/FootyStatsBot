@@ -215,14 +215,29 @@ def plot_player_radar(playerDataDict, cols):
     return buffer
 
 
-async def get_player_radar(interaction: Interaction, playersDict , stat_cols):
+async def get_player_radar(interaction: Interaction, playerMenu):
     """
 
     """
-    
+    playersDict = playerMenu.playersData
+    stat_cols = playerMenu.cols
     buffer = plot_player_radar(playersDict, stat_cols)
     print("plotting done")
     p1_name = playersDict[1]['name']
     p2_name = playersDict[2]['name'] if playersDict[2]['name'] != None else 'None'
     season = playersDict[1]['season']
     await interaction.followup.send(file=discord.File(buffer, filename=f'radar_{p1_name}_{p2_name}_{season}.png'))
+    
+# async def get_player_radar(interaction: Interaction, playersDict , stat_cols):
+#     """
+
+#     """
+    
+#     buffer = plot_player_radar(playersDict, stat_cols)
+#     print("plotting done")
+#     p1_name = playersDict[1]['name']
+#     p2_name = playersDict[2]['name'] if playersDict[2]['name'] != None else 'None'
+#     season = playersDict[1]['season']
+#     await interaction.followup.send(file=discord.File(buffer, filename=f'radar_{p1_name}_{p2_name}_{season}.png'))
+
+
