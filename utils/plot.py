@@ -215,7 +215,7 @@ def plot_player_radar(playerDataDict, cols):
     return buffer
 
 
-async def get_player_radar(interaction: Interaction, playerMenu):
+async def get_player_radar(interaction: Interaction, playerMenu, **kwargs):
     """
 
     """

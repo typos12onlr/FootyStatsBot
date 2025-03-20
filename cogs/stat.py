@@ -12,11 +12,13 @@ import traceback
 class PlayerSelect(discord.ui.Select):
     """ Dropdown menu for player selection in the Plot Menu """
 
-    def __init__(self, menu: "PlayerMenu", options, handler_index, mode = "plot"):
+    def __init__(self, menu: "PlayerMenu", options, handler_index, mode = "plot", **kwargs):
         super().__init__(placeholder="Choose an option", options=options)
         self.menu = menu
         self.handler_index = handler_index
         self.mode = mode
+        self.kwargs = kwargs
+        ## MODE WISE ARGUMENTS PASSED AS KWARGS
         print(f"Selection Mode: {self.mode}")
     async def callback(self, interaction: discord.Interaction):
         """ Handles dropdown selection and progresses the selection process """
@@ -48,7 +50,7 @@ class PlayerSelect(discord.ui.Select):
                     leagues = self.menu.df["Competition"].unique()
                     league_options = [discord.SelectOption(label=l, value=l) for l in leagues]
 
-                    new_select = PlayerSelect(self.menu, league_options, next_handler_index)
+                    new_select = PlayerSelect(self.menu, league_options, next_handler_index, mode = self.mode, **self.kwargs)
                     self.menu.clear_items()
                     self.menu.add_item(new_select)
                     await interaction.response.edit_message(view=self.menu)
@@ -59,7 +61,7 @@ class PlayerSelect(discord.ui.Select):
                     return
 
                 if isinstance(response, list):  # Update dropdown with new options
-                    new_select = PlayerSelect(self.menu, response, handler_index + 1, mode = self.mode)
+                    new_select = PlayerSelect(self.menu, response, handler_index + 1, mode = self.mode, **self.kwargs)
                     self.menu.clear_items()
                     self.menu.add_item(new_select)
                     await interaction.response.edit_message(view=self.menu)
@@ -106,7 +108,7 @@ class PlayerSelect(discord.ui.Select):
             # Call the radar function
             print(f"Calling {self.mode} function")
             func = self.menu.modes[self.mode]
-            await func(interaction, self.menu)
+            await func(interaction, self.menu, **self.kwargs)
 
         except Exception as e:
             print(f"Error occurred: {e}")
@@ -116,7 +118,7 @@ class PlayerSelect(discord.ui.Select):
 class PlayerMenu(discord.ui.View):
     """ View managing dropdown selections """
 
-    def __init__(self, bot, datahandler, n_players, interaction,cols=None, mode="plot"):
+    def __init__(self, bot, datahandler, n_players, interaction,cols=None, mode="plot", **kwargs):
         super().__init__()
         self.bot = bot
         self.datahandler = datahandler
@@ -128,7 +130,7 @@ class PlayerMenu(discord.ui.View):
         self.modes = {
             "plot": get_player_radar,
             "scout": get_similar_players
-        }
+        } ## MODE WISE ARGUMENTS PASSED AS KWARGS
         print(f"Mode: {self.mode}")
         # Player data structure
         self.playersData = {
@@ -148,7 +150,7 @@ class PlayerMenu(discord.ui.View):
 
         # Start with season selection
         print(f"creating {self.mode} selection")
-        self.add_item(PlayerSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS], handler_index=0, mode=self.mode))
+        self.add_item(PlayerSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS], handler_index=0, mode=self.mode, **kwargs))
 
     def _season_handler(self, season):
         if season not in self.datahandler.SEASONS:
@@ -184,7 +186,7 @@ class PlayerMenu(discord.ui.View):
             # Filter data: Select only rows where Position is in posn and "90s Played" >= 5.0
             self.df = self.df[(self.df["Position"].isin(posn)) & (self.df["90s Played"] >= 5.0)]
 
-            self.df = self.df[['Player', 'Squad', 'Competition', '90s Played'] + self.cols]
+            self.df = self.df[['Player', 'Squad', 'Competition', '90s Played', 'Age'] + self.cols]
 
             # self.df = self.df[['Player', 'Squad', 'Competition', '90s Played'] + self.cols]
             print("columns reduced")
@@ -197,7 +199,7 @@ class PlayerMenu(discord.ui.View):
         leagues = self.df["Competition"].unique()
         print(f"Leagues available: {leagues}")
 
-        return [discord.SelectOption(label=l, value=l) for l in leagues]
+        return [discord.SelectOption(label=l, value=l) for l in sorted(leagues)]
 
 
     def _league_handler(self, league):
@@ -213,7 +215,7 @@ class PlayerMenu(discord.ui.View):
 
         teams = filteredData["Squad"].unique()
 
-        return [discord.SelectOption(label=t, value=t) for t in teams]
+        return [discord.SelectOption(label=t, value=t) for t in sorted(teams)]
 
     def _team_handler(self, team):
         if team not in self.df["Squad"].unique():
@@ -225,7 +227,7 @@ class PlayerMenu(discord.ui.View):
 
         self.playersData[self.currentPlayer]["data"] = pdata  
 
-        return [discord.SelectOption(label=p, value=p) for p in pdata["Player"].unique()]
+        return [discord.SelectOption(label=p, value=p) for p in sorted(pdata["Player"].unique())]
 
     def _player_handler(self, player):
         if player not in self.df["Player"].unique():
@@ -263,9 +265,9 @@ class Stat(commands.Cog):
         ### add a handler for the player scout
         ### inside utils, create a scout function, takes in df, player name, and returns top N similar players. (5,10)
     @app_commands.command(name="scout", description="find statistically similar players")
-    async def scout(self, interaction:discord.Interaction, n_similar: int):
+    async def scout(self, interaction:discord.Interaction, n_similar: int, max_age:int):
         '''Slash command to start player scout'''
-        view = PlayerMenu(self.bot, DataHandler, n_players=1, interaction= interaction, mode = "scout")
+        view = PlayerMenu(self.bot, DataHandler, n_players=1, interaction= interaction, mode = "scout", n_similar = n_similar, max_age=max_age)
         await interaction.response.send_message("Select an option:", view= view, ephemeral= False)
 
 async def setup(bot):
