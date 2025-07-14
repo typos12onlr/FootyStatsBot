@@ -239,6 +239,8 @@ class PlayerMenu(discord.ui.View):
 
         return None  # No more dropdowns after player selection
 
+ADMIN_IDs = [596707280586539008]  # bot admin User IDs, only they can run the sync command.
+
 class Stat(commands.Cog):
     """ Discord Cog for Player Selection """
 
@@ -269,6 +271,20 @@ class Stat(commands.Cog):
         '''Slash command to start player scout'''
         view = PlayerMenu(self.bot, DataHandler, n_players=1, interaction= interaction, mode = "scout", n_similar = n_similar, max_age=max_age)
         await interaction.response.send_message("Select an option:", view= view, ephemeral= False)
+
+    @app_commands.command(name="sync_data", description="Sync FBref data to CSV files (admin only)")
+    async def sync_data(self, interaction: discord.Interaction):
+        if interaction.user.id not in ADMIN_IDs:
+            await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+            return
+
+        await interaction.response.send_message("🔄 Syncing data... Please wait.", ephemeral=False)
+
+        try:
+            DataHandler.scrape()
+            await interaction.edit_original_response(content="✅ Data successfully synced and loaded into memory.")
+        except Exception as e:
+            await interaction.edit_original_response(content=f"❌ Sync failed: `{str(e)}`")
 
 async def setup(bot):
     await bot.add_cog(Stat(bot))
