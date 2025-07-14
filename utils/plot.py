@@ -36,9 +36,9 @@ FONT = 'DejaVu Sans'
 
 
 
-FBREF_LOGO = Image.open("static\\fb-logo.png")
-SB_LOGO = Image.open("static\\Opta_Logo_Primary_01-1-1024x346.png")
-FCD_QR = Image.open("static\\ExampleQRCode.png")   
+FBREF_LOGO = Image.open(os.path.join("static","fb-logo.png"))
+SB_LOGO = Image.open(os.path.join("static","Opta_Logo_Primary_01-1-1024x346.png"))
+FCD_QR = Image.open(os.path.join("static","ExampleQRCode.png"))
 
 def plot_player_radar(playerDataDict, cols):
     

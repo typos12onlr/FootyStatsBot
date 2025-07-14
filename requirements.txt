@@ -2,7 +2,7 @@ asyncpraw==7.8.1
 discord.py==2.3.2
 highlight_text==0.2
 matplotlib==3.6.3
-numpy==2.3.1
+numpy==1.24.4
 pandas==1.5.2
 Pillow==11.3.0
 python-dotenv==1.1.1
