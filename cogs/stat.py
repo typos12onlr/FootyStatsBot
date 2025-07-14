@@ -105,7 +105,7 @@ class PlayerSelect(discord.ui.Select):
 
             await interaction.edit_original_response(content="Working...", view=None)
 
-            # Call the radar function
+            # Call the radar/scout function
             print(f"Calling {self.mode} function")
             func = self.menu.modes[self.mode]
             await func(interaction, self.menu, **self.kwargs)
@@ -134,8 +134,8 @@ class PlayerMenu(discord.ui.View):
         print(f"Mode: {self.mode}")
         # Player data structure
         self.playersData = {
-            1: {"season": None, "radarType": None, "league": None, "team": None, "name": None, "data": None},
-            2: {"season": None, "radarType": None, "league": None, "team": None, "name": None, "data": None}
+            1: {"season": None, "radarType": None, "league": None, "team": None, "name": None, "age": None, "data": None},
+            2: {"season": None, "radarType": None, "league": None, "team": None, "name": None, "age": None, "data": None}
         }
         self.currentPlayer = 1
 
@@ -235,8 +235,9 @@ class PlayerMenu(discord.ui.View):
 
         self.playersData[self.currentPlayer]["name"] = player
         pdata = self.playersData[self.currentPlayer]["data"]
+        self.playersData[self.currentPlayer]["age"] = pdata[pdata["Player"] == player]["Age"].values[0]
         self.playersData[self.currentPlayer]["data"] = pdata[pdata["Player"] == player]
-
+        
         return None  # No more dropdowns after player selection
 
 ADMIN_IDs = [596707280586539008]  # bot admin User IDs, only they can run the sync command.
@@ -256,11 +257,11 @@ class Stat(commands.Cog):
     async def plot(self, interaction: discord.Interaction, n_players: int):
         """ Slash command to start selection """
         if n_players not in [1, 2]:
-            await interaction.response.send_message("Only 1 or 2 players are supported.", ephemeral=False)
+            await interaction.response.send_message("Only 1 or 2 players are supported.", ephemeral=True)
             return
 
         view = PlayerMenu(self.bot, DataHandler, n_players, interaction, mode = "plot")
-        await interaction.response.send_message("Select an option:", view=view, ephemeral=False)
+        await interaction.response.send_message("Select an option:", view=view, ephemeral=True)
 
     ### ADD Player Scout command
         ### use PlayerMenu itself to input 1 player
@@ -270,7 +271,7 @@ class Stat(commands.Cog):
     async def scout(self, interaction:discord.Interaction, n_similar: int, max_age:int):
         '''Slash command to start player scout'''
         view = PlayerMenu(self.bot, DataHandler, n_players=1, interaction= interaction, mode = "scout", n_similar = n_similar, max_age=max_age)
-        await interaction.response.send_message("Select an option:", view= view, ephemeral= False)
+        await interaction.response.send_message("Select an option:", view= view, ephemeral= True)
 
     @app_commands.command(name="sync_data", description="Sync FBref data to CSV files (admin only)")
     async def sync_data(self, interaction: discord.Interaction):

@@ -70,5 +70,5 @@ async def get_similar_players(interaction: discord.Interaction, playerMenu, **kw
     max_age = kwargs["max_age"]
     similarPlayers = scoutPlayer(playerInfo, percentile_df, n = n_similar, max_age= max_age)
 
-    await interaction.followup.send(f"Similar players to {playerInfo['name']} are: {', '.join(similarPlayers)}")
+    await interaction.followup.send(f"Here's your response {interaction.user.mention}\nSimilar players to {playerInfo['name']} ({str(playerInfo['age'])}) ({playerInfo['season']}) are: {', '.join(similarPlayers)}", ephemeral = False)
     

@@ -48,10 +48,10 @@ def plot_player_radar(playerDataDict, cols):
     print(player2_info)
 
     p1_90s = float(player1_info['data']['90s Played'])
-    p1 = f"{player1_info['name']} | {player1_info['team']} | 90's - {p1_90s:2}"
+    p1 = f"{player1_info['name'] + ' (' + str(player1_info['age']) +')'} | {player1_info['team']} | 90's - {p1_90s:2}"
     if player2_info['name'] != None:
         p2_90s = float(player2_info['data']['90s Played'])
-        p2 = f"{player2_info['name']} | {player2_info['team']} | 90's - {p2_90s:2}"
+        p2 = f"{player2_info['name'] + ' (' + str(player2_info['age']) +')'} | {player2_info['team']} | 90's - {p2_90s:2}"
     else:
         p2 = ''
 
@@ -226,7 +226,7 @@ async def get_player_radar(interaction: Interaction, playerMenu, **kwargs):
     p1_name = playersDict[1]['name']
     p2_name = playersDict[2]['name'] if playersDict[2]['name'] != None else 'None'
     season = playersDict[1]['season']
-    await interaction.followup.send(file=discord.File(buffer, filename=f'radar_{p1_name}_{p2_name}_{season}.png'))
+    await interaction.followup.send(content=f"Here's your response {interaction.user.mention}\n", file=discord.File(buffer, filename=f'radar_{p1_name}_{p2_name}_{season}.png'), ephemeral=False)
     
 # async def get_player_radar(interaction: Interaction, playersDict , stat_cols):
 #     """
