@@ -4,7 +4,6 @@ highlight_text==0.2
 matplotlib==3.6.3
 numpy==2.3.1
 pandas==1.5.2
-Pillow==9.4.0
 Pillow==11.3.0
 python-dotenv==1.1.1
 selenium==4.34.2
