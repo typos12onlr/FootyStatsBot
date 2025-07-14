@@ -54,8 +54,11 @@ def scoutPlayer(playerInfo, percentile_df, n=10, max_age=100):
     similar_players = filtered_df.sort_values(by="Similarity", ascending=False)
     similar_players = similar_players[similar_players["Player"] != playerInfo["name"]]
 
-    # Return the top n player names
-    return similar_players["Player"].head(n).tolist()
+    # Select top N rows
+    top_n = similar_players.head(n)
+
+    # Format as "Player (Age)"
+    return [f"{row['Player']} ({int(row['Age'])})" for _, row in top_n.iterrows()]
 
 
 

@@ -206,7 +206,7 @@ def plot_player_radar(playerDataDict, cols):
     p2_name = playerDataDict[2]['name'] if playerDataDict[2]['name'] != None else 'None'
     filename = p1_name + "_vs_" + p2_name + ".png"
     image = Image.open(buffer)
-    image.save(filename, format='PNG')
+    # image.save(filename, format='PNG') ### would want to comment this out, dont need to actually save every image
     buffer.seek(0)
     fig.clear()    
     
