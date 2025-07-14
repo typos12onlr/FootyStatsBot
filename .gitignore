@@ -3,5 +3,5 @@ cogs/__pycache__
 trial.py
 utils/__pycache__
 __pycache__
-pyenv/
+*env/
 # Ignore Python cache files
