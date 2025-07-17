@@ -57,9 +57,8 @@ def scoutPlayer(playerInfo, percentile_df, n=10, max_age=100):
     # Select top N rows
     top_n = similar_players.head(n)
 
-    # Format as "Player (Age)"
-    return [f"{row['Player']} ({int(row['Age'])})" for _, row in top_n.iterrows()]
-
+    # Format as [[Player, Age]]
+    return [(row['Player'], int(row['Age'])) for _, row in top_n.iterrows()]
 
 
 async def get_similar_players(interaction: discord.Interaction, playerMenu, **kwargs):
@@ -70,5 +69,13 @@ async def get_similar_players(interaction: discord.Interaction, playerMenu, **kw
     max_age = kwargs["max_age"]
     similarPlayers = scoutPlayer(playerInfo, percentile_df, n = n_similar, max_age= max_age)
 
-    await interaction.followup.send(f"Here's your response {interaction.user.mention}\nSimilar players to {playerInfo['name']} ({str(playerInfo['age'])}) ({playerInfo['season']}) are: {', '.join(similarPlayers)}", ephemeral = False)
-    
+    # Build the formatted string
+    header = f"Similar players to {playerInfo['name']} ({playerInfo['age']}) are:\n"
+    body = ""
+
+    for i, (player_name, player_age) in enumerate(similarPlayers, 1):
+        body += f"{i}) {player_name} ({player_age})\n"
+
+    final_message = f"Here's your response {interaction.user.mention}\n{header}{body}"
+
+    await interaction.followup.send(final_message, ephemeral=False)

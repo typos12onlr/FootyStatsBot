@@ -150,7 +150,7 @@ class PlayerMenu(discord.ui.View):
 
         # Start with season selection
         print(f"creating {self.mode} selection")
-        self.add_item(PlayerSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS], handler_index=0, mode=self.mode, **kwargs))
+        self.add_item(PlayerSelect(self, [discord.SelectOption(label=s, value=s) for s in self.datahandler.SEASONS[::-1]], handler_index=0, mode=self.mode, **kwargs))  #reversing seasons list so that latest season appears on top
 
     def _season_handler(self, season):
         if season not in self.datahandler.SEASONS:
