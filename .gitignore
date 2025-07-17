@@ -4,4 +4,5 @@ trial.py
 utils/__pycache__
 __pycache__
 *env/
-# Ignore Python cache files
+*.ipynb
+# Ignore Python cache files, env files, experimental notebooks
